@@ -22,3 +22,9 @@ The **librarian**. The "Store" (also known as the Service or Repository layer) i
 
 ### 6. Response
 The **finish line**. This is the final data packet your server sends back to the client. It includes a **Status Code** (like `200 OK` or `404 Not Found`) and the data (usually JSON). Sending the response closes the Request-Response Cycle.
+
+//explain in itemController why 2
+
+Pattern 1: Always Return Objects (Consistent)
+
+Pattern 2: Throw Errors (What I Did)
