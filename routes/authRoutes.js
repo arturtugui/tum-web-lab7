@@ -12,7 +12,7 @@ router.post('/token', (req, res) => {
         }
 
         const token = generateToken(role)
-        res.json({ token })
+        res.status(201).json({ token })
 
     }
     catch (error) {

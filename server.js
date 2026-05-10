@@ -1,6 +1,7 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import authRoutes from './routes/authRoutes.js'
+import { authenticate } from './middleware/authMiddleware.js'
 
 dotenv.config()
 
