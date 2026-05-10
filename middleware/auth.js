@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken'
 
+//.env is loaded in server.js, so we can access process.env.JWT_SECRET here
+
 // 401 - Unauthorized
 
 export function authenticate(req, res, next) {
