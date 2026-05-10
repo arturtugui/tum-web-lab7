@@ -17,4 +17,8 @@ app.get('/', (req, res) => {
   res.json({ message: 'PIT API Server running' })
 })
 
+app.get('/items', authenticate, (req, res) => {
+  res.json({ items: [] }) // send JSON response
+})
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
