@@ -3,7 +3,7 @@ import { generateToken } from '../controllers/authController.js'
 
 const router = express.Router()
 
-router.post('/login', (req, res) => {
+router.post('/token', (req, res) => {
     try{
         const { role } = req.body // the request body should contain the role (owner or viewer)
 
