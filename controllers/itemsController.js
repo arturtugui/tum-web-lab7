@@ -1,5 +1,9 @@
 import {loadItems, saveItems} from '../data/store.js'
 
+// I use return both status and error because
+// Route will have a try/catch to handle errors
+// In case of error it will return the error message and error status code
+
 export async function getAllItems(limit = 20, offset = 0) {
   try {
     const items = await loadItems()
@@ -124,7 +128,7 @@ export async function unhideItem(id) {
 
     items[index].isHidden = false
     await saveItems(items)
-    
+
     return { success: true, message: 'Item unhidden' }
   } 
   catch (error) {
