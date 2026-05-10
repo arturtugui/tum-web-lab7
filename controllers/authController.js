@@ -10,8 +10,8 @@ export function generateToken(role) {
     const token = jwt.sign(
         { role }, 
         process.env.JWT_SECRET, 
-        { expiresIn: '1h' }
+        { expiresIn: '1m' }
     )
-    
+
     return token
 }
