@@ -103,19 +103,101 @@ JSON file storage is simple, requires no database, and persists data. Sufficient
 Implement the `/token` endpoint and the auth middleware.
 
 **Tasks:**
-- In `routes/auth.js`:
-  - `POST /token` — accepts `{ role: 'owner' | 'viewer' }` in body
-  - Validates role is one of the two allowed values
-  - Returns `{ token: '...' }` signed with `JWT_SECRET`, expires in `1m`
 - In `middleware/auth.js`:
   - Extract token from `Authorization: Bearer <token>` header
   - Verify with `jwt.verify()`
   - Attach decoded payload to `req.user`
   - Return `401` if missing, `401` if invalid/expired
-- In `controllers/authController.js`:
-  - Move token generation logic here (keep routes thin)
 
-**Deliverable:** `POST /token` returns a JWT. Sending it in the header grants access (verified manually with a tool like Postman or curl).
+```javascript
+// middleware/auth.js
+import jwt from 'jsonwebtoken'
+
+export function authenticate(req, res, next) {
+  const header = req.headers['authorization']
+  const token = header?.split(' ')[1] // extract token from "Bearer <token>"
+
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' })
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    req.user = decoded // attach role to request
+    next()
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid or expired token' })
+  }
+}
+```
+
+- In `controllers/authController.js`:
+  - Write function to generate and sign JWT token
+
+```javascript
+// controllers/authController.js
+import jwt from 'jsonwebtoken'
+
+export function generateToken(role) {
+  if (!['owner', 'viewer'].includes(role)) {
+    throw new Error('Invalid role. Must be "owner" or "viewer"')
+  }
+
+  const token = jwt.sign(
+    { role },
+    process.env.JWT_SECRET,
+    { expiresIn: '1m' }
+  )
+
+  return token
+}
+```
+
+- In `routes/auth.js`:
+  - `POST /token` — accepts `{ role: 'owner' | 'viewer' }` in body
+  - Calls controller to generate token
+  - Returns `{ token: '...' }`
+
+```javascript
+// routes/auth.js
+import express from 'express'
+import { generateToken } from '../controllers/authController.js'
+
+const router = express.Router()
+
+router.post('/token', (req, res) => {
+  try {
+    const { role } = req.body
+
+    if (!role) {
+      return res.status(400).json({ error: 'Role is required' })
+    }
+
+    const token = generateToken(role)
+    res.json({ token })
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+})
+
+export default router
+```
+
+- In `server.js`:
+  - Import and mount the auth routes
+
+```javascript
+// server.js (add these lines)
+import authRoutes from './routes/auth.js'
+
+app.use(authRoutes)
+```
+
+**Testing:**
+- `POST http://localhost:3000/token` with body `{ "role": "owner" }` → returns `{ "token": "eyJ..." }`
+- Send the token in next requests: `Authorization: Bearer <token>`
+
+**Deliverable:** `POST /token` returns a JWT. Sending it in the `Authorization` header grants access to protected routes.
 
 ---
 
@@ -125,20 +207,149 @@ Implement the `/token` endpoint and the auth middleware.
 Wire up all item endpoints with authentication and role-based authorization.
 
 **Tasks:**
-- In `routes/items.js`, create all routes behind `authenticate` middleware:
-  - `GET /items` — all roles, supports `?limit=&offset=`
-  - `GET /items/:id` — all roles
-  - `POST /items` — owner only
-  - `PUT /items/:id` — owner only
-  - `PATCH /items/:id` — owner only (partial update)
-  - `DELETE /items/:id` — owner only
-  - `PATCH /items/:id/hide` — owner only
-  - `PATCH /items/:id/unhide` — owner only
-- Add role check inside routes or as a second middleware:
-  ```js
-  if (req.user.role !== 'owner') return res.status(403).json({ error: 'Forbidden' })
-  ```
-- Use correct status codes for every response (200, 201, 400, 401, 403, 404)
+- In `routes/items.js`, import controller functions and auth middleware, then create routes:
+
+```javascript
+// routes/items.js
+import express from 'express'
+import { authenticate } from '../middleware/auth.js'
+import {
+  getAllItems,
+  getItemById,
+  addItem,
+  updateItem,
+  deleteItem,
+  hideItem,
+  unhideItem
+} from '../controllers/itemsController.js'
+
+const router = express.Router()
+
+// Helper: Check if user is owner
+function requireOwner(req, res, next) {
+  if (req.user.role !== 'owner') {
+    return res.status(403).json({ error: 'Forbidden: Only owners can perform this action' })
+  }
+  next()
+}
+
+// GET /items — all roles, supports ?limit=20&offset=0
+router.get('/items', authenticate, async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20
+    const offset = parseInt(req.query.offset) || 0
+    const result = await getAllItems(limit, offset)
+    res.json(result)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// GET /items/:id — all roles
+router.get('/items/:id', authenticate, async (req, res) => {
+  try {
+    const item = await getItemById(req.params.id)
+    res.json(item)
+  } catch (error) {
+    res.status(404).json({ error: error.message })
+  }
+})
+
+// POST /items — owner only
+router.post('/items', authenticate, requireOwner, async (req, res) => {
+  try {
+    const result = await addItem(req.body)
+    res.status(201).json(result)
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+})
+
+// PUT /items/:id — owner only (full replacement)
+router.put('/items/:id', authenticate, requireOwner, async (req, res) => {
+  try {
+    const result = await updateItem({ ...req.body, id: req.params.id })
+    res.json(result)
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+})
+
+// PATCH /items/:id — owner only (partial update)
+router.patch('/items/:id', authenticate, requireOwner, async (req, res) => {
+  try {
+    const item = await getItemById(req.params.id)
+    const updated = { ...item, ...req.body, id: req.params.id }
+    const result = await updateItem(updated)
+    res.json(result)
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+})
+
+// DELETE /items/:id — owner only
+router.delete('/items/:id', authenticate, requireOwner, async (req, res) => {
+  try {
+    const result = await deleteItem(req.params.id)
+    res.json(result)
+  } catch (error) {
+    res.status(404).json({ error: error.message })
+  }
+})
+
+// PATCH /items/:id/hide — owner only
+router.patch('/items/:id/hide', authenticate, requireOwner, async (req, res) => {
+  try {
+    const result = await hideItem(req.params.id)
+    res.json(result)
+  } catch (error) {
+    res.status(404).json({ error: error.message })
+  }
+})
+
+// PATCH /items/:id/unhide — owner only
+router.patch('/items/:id/unhide', authenticate, requireOwner, async (req, res) => {
+  try {
+    const result = await unhideItem(req.params.id)
+    res.json(result)
+  } catch (error) {
+    res.status(404).json({ error: error.message })
+  }
+})
+
+export default router
+```
+
+- In `server.js`, mount the items routes:
+
+```javascript
+// server.js (add these lines)
+import itemRoutes from './routes/items.js'
+
+app.use(itemRoutes)
+```
+
+**Key Concepts:**
+- All routes use `authenticate` middleware to verify token
+- `requireOwner` middleware checks if user role is 'owner' for write operations
+- Viewers can only GET (read)
+- Owners can do everything
+- Use correct HTTP status codes:
+  - `200` — GET/PUT/PATCH/DELETE success
+  - `201` — POST success (resource created)
+  - `400` — Bad request (validation error)
+  - `401` — Missing/invalid token
+  - `403` — Valid token but insufficient permissions
+  - `404` — Item not found
+  - `500` — Server error
+
+**Testing with Postman:**
+1. `POST /token` with `{"role":"owner"}` → copy token
+2. Click "Authorization" → select "Bearer Token" → paste token
+3. `GET /items` → should return paginated items
+4. `POST /items` with item body → should create item
+5. Switch to `{"role":"viewer"}` token
+6. `POST /items` → should return 403 Forbidden
 
 **Deliverable:** All endpoints work correctly. Viewer token can only GET. Owner token can do everything.
 
