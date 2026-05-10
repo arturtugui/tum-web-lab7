@@ -1,7 +1,8 @@
 import {loadItems, saveItems} from '../data/store.js'
 
-export async function getAllItems() {
-  return await loadItems()
+export async function getAllItems(limit, offset) {
+  const items = await loadItems()
+  return items.slice(offset, offset + limit)
 }
 
 export async function getItemById(id) {
