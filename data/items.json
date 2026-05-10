@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "title": "The Boys",
+    "category": "series",
+    "status": "in_progress",
+    "coverUrl": "https://image.tmdb.org/t/p/original/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg"
+  },
+  {
+    "id": 2,
+    "title": "Apex Legends",
+    "category": "game",
+    "status": "in_progress",
+    "rating": 9,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/header.jpg"
+  },
+  {
+    "id": 3,
+    "title": "Resident Evil 2",
+    "category": "game",
+    "status": "completed",
+    "coverUrl": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/883710/library_600x900_2x.jpg"
+  },
+  {
+    "id": 4,
+    "title": "Dexter",
+    "category": "series",
+    "status": "completed",
+    "coverUrl": "https://image.tmdb.org/t/p/original/q8dWfc4JwQuv3HayIZeO84jAXED.jpg"
+  },
+  {
+    "id": 5,
+    "title": "Schindler's List",
+    "category": "movie",
+    "status": "planned",
+    "coverUrl": "https://image.tmdb.org/t/p/original/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg"
+  },
+  {
+    "id": 6,
+    "title": "Tokyo Ghoul",
+    "category": "manga",
+    "status": "completed",
+    "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqf9NgrDpoUTRfA2vfs10ic6T5tJOxoojSptkdHHpxF2aoBaoIxtQYJCwOS1kGkanCa68vOxMmUYrCxryQdgrbz7Vu4R7Z_a6xMbOGPQ39vg&s=10"
+  },
+  {
+    "id": 7,
+    "title": "Takopi's Original Sin",
+    "category": "anime",
+    "status": "completed",
+    "coverUrl": "https://i0.wp.com/ronitjauthor.com/wp-content/uploads/2025/08/Takopis-Original-Sin-2025-Official-Poster-e1754218186871.webp?resize=540%2C720&ssl=1"
+  },
+  {
+    "id": 8,
+    "title": "Supernatural",
+    "category": "series",
+    "status": "dropped",
+    "coverUrl": "https://m.media-amazon.com/images/M/MV5BMDFmMGZmMGItNGRjNC00NjVjLWI5ODEtNzhjMTE5MmJhN2FkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+  },
+  {
+    "id": 1778410734731.9673,
+    "title": "House M.D.",
+    "category": "series",
+    "status": "completed",
+    "rating": null,
+    "coverUrl": "https://blog.hospitalmedicine.org/wp-content/uploads/2012/05/house-md.jpg",
+    "isHidden": false
+  }
+]
