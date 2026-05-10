@@ -71,24 +71,29 @@ Initialize the repo and get a basic Express server running.
 
 ---
 
-### Stage B2 — In-Memory Data Store
+### Stage B2 — JSON File Storage
 **Branch:** `stage/b2-store`
 
-Define the data model and create the in-memory store that holds items.
+Define the data model and create persistent JSON file storage that survives server restarts.
 
 **Tasks:**
 - In `data/store.js`:
-  - Export a mutable `items` array (starts with 3–4 seed items for testing)
-  - Each item matches the Lab 6 data model (same fields: `id`, `title`, `category`, `status`, `rating`, `coverUrl`, `notes`, `isHidden`, + category-specific fields)
-  - Use `crypto.randomUUID()` for IDs
+  - Export `loadItems()` — async function that reads `data/items.json` file, returns parsed items array
+  - Export `saveItems(items)` — async function that writes items array to `data/items.json`
+  - Handle file read/write errors gracefully
+- Create `data/items.json` with seed data:
+  - Start with 3–4 test items matching Lab 6 data model
+  - Each item has: `id`, `title`, `category`, `status`, `rating`, `coverUrl`, `notes`, `isHidden`, + category-specific fields
+  - Use `crypto.randomUUID()` for ID generation
 - In `controllers/itemsController.js`:
-  - Write pure functions: `getAllItems`, `getItemById`, `createItem`, `updateItem`, `deleteItem`, `hideItem`, `unhideItem`
+  - Write async functions: `getAllItems`, `getItemById`, `createItem`, `updateItem`, `deleteItem`, `hideItem`, `unhideItem`
+  - Each function must `loadItems()` before operating, then `saveItems()` after mutations
   - `getAllItems` supports `limit` and `offset` parameters and returns `{ items, total, limit, offset }`
 
-**Deliverable:** Controller functions work correctly when called directly (testable with a simple script).
+**Deliverable:** Controller functions work correctly. Data persists in `data/items.json` and survives server restarts.
 
-**⚠️ Important Note:**
-The in-memory store resets when the server restarts. This is fine for development and demos, but understand the limitation: all data is lost on restart. For production, use MongoDB, PostgreSQL, or another persistent database.
+**✅ Benefit:**
+JSON file storage is simple, requires no database, and persists data. Sufficient for development and demos.
 
 ---
 
