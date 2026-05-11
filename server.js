@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import dotenv from 'dotenv'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './swagger.js'
@@ -13,6 +14,9 @@ const PORT = process.env.PORT || 3000
 
 //middleware, that allows us to parse JSON request bodies
 app.use(express.json())
+
+// CORS - Allow requests from React frontend
+app.use(cors({ origin: 'http://localhost:5173' }))
 
 // swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
