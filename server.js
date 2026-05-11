@@ -8,12 +8,21 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 3000
 
-//middleware - runs between request arriving and route handlers
-app.use(express.json()) // parse JSON request bodies
+//middleware, that allows us to parse JSON request bodies
+app.use(express.json())
 
-// Routes
-app.use(authRoutes)
 
+// routes
+app.use('/auth', authRoutes)
+
+// global error handler
+app.use((err, req, res, next) => {
+  const status = err.status || 500
+  res.status(status).json({ error: err.message || 'Internal Server Error' })
+})
+
+//****
+//this code does not follow the architecture yet
 app.get('/', (req, res) => {
   res.json({ message: 'PIT API Server running' })
 })
@@ -21,5 +30,6 @@ app.get('/', (req, res) => {
 app.get('/items', authenticate, (req, res) => {
   res.json({ items: [] }) // send JSON response
 })
+//****
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
