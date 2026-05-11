@@ -7,23 +7,4 @@ const router = express.Router()
 // so they will be for example /auth/token
 router.post('/token', generateToken)
 
-// ignore the code below
-router.post('/token', (req, res) => {
-    try{
-        const { role } = req.body // the request body should contain the role (owner or viewer)
-
-        if (!role) {
-            return res.status(400).json({ error: 'Role is required' })
-        }
-
-        const token = generateToken(role)
-        res.status(201).json({ token })
-
-    }
-    catch (error) {
-        res.status(400).json({ error: error.message })
-    }
-
-})
-
 export default router
