@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 //.env is loaded in server.js, so we can access process.env.JWT_SECRET here
 
 // 401 - Unauthorized
+// 403 - Forbidden
 
 export function authenticate(req, res, next) {
     const header = req.headers['authorization']
@@ -22,4 +23,11 @@ export function authenticate(req, res, next) {
     } catch (error) {
         return res.status(401).json({ error: 'Invalid token' })
     }
+}
+
+export function requireOwner(req, res, next) {
+  if (req.user?.role !== 'owner') {
+    return res.status(403).json({ error: 'Forbidden: owner role required' })
+  }
+  next()
 }
