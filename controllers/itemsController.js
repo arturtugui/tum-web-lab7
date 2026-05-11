@@ -1,100 +1,140 @@
-import {loadItems, saveItems} from '../data/store.js'
+import { loadItems, saveItems } from '../data/store.js'
 
-// I use return both status and error because
-// Route will have a try/catch to handle errors
-// In case of error it will return the error message and error status code
+// Controllers receive (req, res) and send responses
+// They catch errors from store and send appropriate status codes
 
-export async function getAllItems(limit = 20, offset = 0) {
+export async function getAllItems(req, res) {
   try {
+    const limit = parseInt(req.query.limit) || 20
+    const offset = parseInt(req.query.offset) || 0
     const items = await loadItems()
     const total = items.length
     const paginatedItems = items.slice(offset, offset + limit)
 
-    return {
+    res.status(200).json({
       items: paginatedItems,
       total,
       limit,
       offset
-    }
-  } 
-  catch (error) {
-    throw new Error(`Failed to get items: ${error.message}`)
+    })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to retrieve items' })
   }
 }
 
-export async function getItemById(id) {
+export async function getItemById(req, res) {
   try {
+    const { id } = req.params
     const items = await loadItems()
-    const item = items.find(item => item.id === id)
+    const item = items.find(item => item.id == id)
 
     if (!item) {
-      throw new Error(`Item with id ${id} not found`)
+      return res.status(404).json({ error: `Item with id ${id} not found` })
     }
 
-    return item
-  } 
-  catch (error) {
-    throw new Error(`Failed to get item: ${error.message}`)
+    res.status(200).json(item)
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to retrieve item' })
   }
 }
 
-export async function addItem(item) {
+export async function addItem(req, res) {
   try {
+    const item = req.body
+
     if (!item.id || !item.title || !item.category || !item.status) {
-      throw new Error('Missing required fields: id, title, category, status')
+      return res.status(400).json({ error: 'Missing required fields: id, title, category, status' })
     }
 
     const items = await loadItems()
     items.push(item)
     await saveItems(items)
 
-    return { success: true, item }
-  } 
-  catch (error) {
-    throw new Error(`Failed to add item: ${error.message}`)
+    res.status(201).json({ success: true, item })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to add item' })
   }
 }
 
-export async function updateItem(updatedItem) {
+export async function updateItem(req, res) {
   try {
-    if (!updatedItem.id) {
-      throw new Error('Item id is required')
+    const { id } = req.params
+    const updatedItem = { ...req.body, id }
+
+    if (!id) {
+      return res.status(400).json({ error: 'Item id is required' })
     }
 
     const items = await loadItems()
-    const index = items.findIndex(item => item.id === updatedItem.id)
-    
+    const index = items.findIndex(item => item.id == id)
+
     if (index === -1) {
-      throw new Error(`Item with id ${updatedItem.id} not found`)
+      return res.status(404).json({ error: `Item with id ${id} not found` })
     }
 
     items[index] = updatedItem
     await saveItems(items)
 
-    return { success: true, item: updatedItem }
-  } 
-  
-  catch (error) {
-    throw new Error(`Failed to update item: ${error.message}`)
+    res.status(200).json({ success: true, item: updatedItem })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update item' })
   }
 }
 
-export async function deleteItem(id) {
+export async function deleteItem(req, res) {
   try {
+    const { id } = req.params
     const items = await loadItems()
-    const index = items.findIndex(item => item.id === id)
+    const index = items.findIndex(item => item.id == id)
 
     if (index === -1) {
-      throw new Error(`Item with id ${id} not found`)
+      return res.status(404).json({ error: `Item with id ${id} not found` })
     }
 
-    items.splice(index, 1) //mutates the items array, returns the deleted
+    items.splice(index, 1)
     await saveItems(items)
 
-    return { success: true, message: 'Item deleted' }
-  } 
-  catch (error) {
-    throw new Error(`Failed to delete item: ${error.message}`)
+    res.status(200).json({ success: true, message: 'Item deleted' })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete item' })
+  }
+}
+
+export async function hideItem(req, res) {
+  try {
+    const { id } = req.params
+    const items = await loadItems()
+    const index = items.findIndex(item => item.id == id)
+
+    if (index === -1) {
+      return res.status(404).json({ error: `Item with id ${id} not found` })
+    }
+
+    items[index].isHidden = true
+    await saveItems(items)
+
+    res.status(200).json({ success: true, message: 'Item hidden' })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to hide item' })
+  }
+}
+
+export async function unhideItem(req, res) {
+  try {
+    const { id } = req.params
+    const items = await loadItems()
+    const index = items.findIndex(item => item.id == id)
+
+    if (index === -1) {
+      return res.status(404).json({ error: `Item with id ${id} not found` })
+    }
+
+    items[index].isHidden = false
+    await saveItems(items)
+
+    res.status(200).json({ success: true, message: 'Item unhidden' })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to unhide item' })
   }
 }
 

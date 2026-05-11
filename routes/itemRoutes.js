@@ -13,7 +13,7 @@ import {
 
 const router = express.Router();
 
-// Routes — traffic map only, no logic, no try/catch
+// you create a next() chain
 router.get("/items", authenticate, getAllItems);
 router.get("/items/:id", authenticate, getItemById);
 router.post("/items", authenticate, requireOwner, addItem);
