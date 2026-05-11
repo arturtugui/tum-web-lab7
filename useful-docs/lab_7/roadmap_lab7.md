@@ -8,11 +8,13 @@
 ## LAB 6 — Remaining Work
 
 ### Stage 8 — Role System
+
 **Branch:** `stage/8-roles`
 
 Simulate owner/viewer roles using a dedicated `RoleContext`. In Lab 7 this will be replaced by real JWT roles.
 
 **Tasks:**
+
 - Create `src/context/RoleContext.jsx`:
   - Holds `role` (`'owner'` | `'viewer'`) as `useState`
   - Exposes `toggleRole` function
@@ -35,11 +37,13 @@ Simulate owner/viewer roles using a dedicated `RoleContext`. In Lab 7 this will 
 ---
 
 ### Stage B1 — Project Setup & Basic Server
+
 **Branch:** `stage/b1-setup`
 
 Initialize the repo and get a basic Express server running.
 
 **Tasks:**
+
 - `npm init -y`, install dependencies:
   ```
   npm install express cors dotenv jsonwebtoken swagger-ui-express swagger-jsdoc
@@ -72,11 +76,13 @@ Initialize the repo and get a basic Express server running.
 ---
 
 ### Stage B2 — JSON File Storage
+
 **Branch:** `stage/b2-store`
 
 Define the data model and create persistent JSON file storage that survives server restarts.
 
 **Tasks:**
+
 - In `data/store.js`:
   - Export `loadItems()` — async function that reads `data/items.json` file, returns parsed items array
   - Export `saveItems(items)` — async function that writes items array to `data/items.json`
@@ -98,11 +104,13 @@ JSON file storage is simple, requires no database, and persists data. Sufficient
 ---
 
 ### Stage B3 — JWT Authentication
+
 **Branch:** `stage/b3-auth`
 
 Implement the `/token` endpoint and the auth middleware.
 
 **Tasks:**
+
 - In `middleware/auth.js`:
   - Extract token from `Authorization: Bearer <token>` header
   - Verify with `jwt.verify()`
@@ -111,76 +119,81 @@ Implement the `/token` endpoint and the auth middleware.
 
 ```javascript
 // middleware/auth.js
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 
 export function authenticate(req, res, next) {
-  const header = req.headers['authorization']
-  const token = header?.split(' ')[1] // extract token from "Bearer <token>"
+  const header = req.headers["authorization"];
+  const token = header?.split(" ")[1]; // extract token from "Bearer <token>"
 
   if (!token) {
-    return res.status(401).json({ error: 'No token provided' })
+    return res.status(401).json({ error: "No token provided" });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    req.user = decoded // attach role to request
-    next()
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // attach role to request
+    next();
   } catch (error) {
-    return res.status(401).json({ error: 'Invalid or expired token' })
+    return res.status(401).json({ error: "Invalid or expired token" });
   }
 }
 ```
 
 - In `controllers/authController.js`:
-  - Write function to generate and sign JWT token
+  - Write `getToken(req, res)` that handles all logic and sends responses directly
+  - Validate input, generate token, catch errors, send responses
+  - Controller owns: validation (400), token generation, error handling (500)
 
 ```javascript
 // controllers/authController.js
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 
-export function generateToken(role) {
-  if (!['owner', 'viewer'].includes(role)) {
-    throw new Error('Invalid role. Must be "owner" or "viewer"')
+const validRoles = ["owner", "viewer"];
+
+export async function getToken(req, res) {
+  try {
+    const { role } = req.body;
+
+    // Validate input
+    if (!role) {
+      return res.status(400).json({ error: "Role is required" });
+    }
+
+    if (!validRoles.includes(role)) {
+      return res
+        .status(400)
+        .json({ error: 'Invalid role. Must be "owner" or "viewer"' });
+    }
+
+    // Generate token
+    const token = jwt.sign({ role }, process.env.JWT_SECRET, {
+      expiresIn: "1m",
+    });
+
+    // Success response (201 for resource creation)
+    res.status(201).json({ token });
+  } catch (error) {
+    // Server error (token generation failed)
+    res.status(500).json({ error: "Failed to generate token" });
   }
-
-  const token = jwt.sign(
-    { role },
-    process.env.JWT_SECRET,
-    { expiresIn: '1m' }
-  )
-
-  return token
 }
 ```
 
 - In `routes/auth.js`:
-  - `POST /token` — accepts `{ role: 'owner' | 'viewer' }` in body
-  - Calls controller to generate token
-  - Returns `{ token: '...' }`
+  - `POST /token` — maps to controller, nothing else
+  - **Routes have no try/catch, no business logic**
 
 ```javascript
-// routes/auth.js
-import express from 'express'
-import { generateToken } from '../controllers/authController.js'
+// routes/auth.js — Traffic map only, no logic
+import express from "express";
+import { getToken } from "../controllers/authController.js";
 
-const router = express.Router()
+const router = express.Router();
 
-router.post('/token', (req, res) => {
-  try {
-    const { role } = req.body
+// Route just maps URL to controller
+router.post("/token", getToken);
 
-    if (!role) {
-      return res.status(400).json({ error: 'Role is required' })
-    }
-
-    const token = generateToken(role)
-    res.json({ token })
-  } catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-})
-
-export default router
+export default router;
 ```
 
 - In `server.js`:
@@ -188,12 +201,13 @@ export default router
 
 ```javascript
 // server.js (add these lines)
-import authRoutes from './routes/auth.js'
+import authRoutes from "./routes/auth.js";
 
-app.use(authRoutes)
+app.use(authRoutes);
 ```
 
 **Testing:**
+
 - `POST http://localhost:3000/token` with body `{ "role": "owner" }` → returns `{ "token": "eyJ..." }`
 - Send the token in next requests: `Authorization: Bearer <token>`
 
@@ -202,17 +216,19 @@ app.use(authRoutes)
 ---
 
 ### Stage B4 — CRUD Routes
+
 **Branch:** `stage/b4-routes`
 
 Wire up all item endpoints with authentication and role-based authorization.
 
 **Tasks:**
+
 - In `routes/items.js`, import controller functions and auth middleware, then create routes:
 
 ```javascript
 // routes/items.js
-import express from 'express'
-import { authenticate } from '../middleware/auth.js'
+import express from "express";
+import { authenticate } from "../middleware/auth.js";
 import {
   getAllItems,
   getItemById,
@@ -220,130 +236,78 @@ import {
   updateItem,
   deleteItem,
   hideItem,
-  unhideItem
-} from '../controllers/itemsController.js'
+  unhideItem,
+} from "../controllers/itemsController.js";
 
-const router = express.Router()
+const router = express.Router();
 
 // Helper: Check if user is owner
 function requireOwner(req, res, next) {
-  if (req.user.role !== 'owner') {
-    return res.status(403).json({ error: 'Forbidden: Only owners can perform this action' })
+  if (req.user.role !== "owner") {
+    return res
+      .status(403)
+      .json({ error: "Forbidden: Only owners can perform this action" });
   }
-  next()
+  next();
 }
 
-// GET /items — all roles, supports ?limit=20&offset=0
-router.get('/items', authenticate, async (req, res) => {
-  try {
-    const limit = parseInt(req.query.limit) || 20
-    const offset = parseInt(req.query.offset) || 0
-    const result = await getAllItems(limit, offset)
-    res.json(result)
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-})
+// Routes — traffic map only, no logic, no try/catch
+router.get("/items", authenticate, getAllItems);
+router.get("/items/:id", authenticate, getItemById);
+router.post("/items", authenticate, requireOwner, addItem);
+router.put("/items/:id", authenticate, requireOwner, updateItem);
+router.patch("/items/:id", authenticate, requireOwner, updateItem); // partial update
+router.delete("/items/:id", authenticate, requireOwner, deleteItem);
+router.patch("/items/:id/hide", authenticate, requireOwner, hideItem);
+router.patch("/items/:id/unhide", authenticate, requireOwner, unhideItem);
 
-// GET /items/:id — all roles
-router.get('/items/:id', authenticate, async (req, res) => {
-  try {
-    const item = await getItemById(req.params.id)
-    res.json(item)
-  } catch (error) {
-    res.status(404).json({ error: error.message })
-  }
-})
-
-// POST /items — owner only
-router.post('/items', authenticate, requireOwner, async (req, res) => {
-  try {
-    const result = await addItem(req.body)
-    res.status(201).json(result)
-  } catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-})
-
-// PUT /items/:id — owner only (full replacement)
-router.put('/items/:id', authenticate, requireOwner, async (req, res) => {
-  try {
-    const result = await updateItem({ ...req.body, id: req.params.id })
-    res.json(result)
-  } catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-})
-
-// PATCH /items/:id — owner only (partial update)
-router.patch('/items/:id', authenticate, requireOwner, async (req, res) => {
-  try {
-    const item = await getItemById(req.params.id)
-    const updated = { ...item, ...req.body, id: req.params.id }
-    const result = await updateItem(updated)
-    res.json(result)
-  } catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-})
-
-// DELETE /items/:id — owner only
-router.delete('/items/:id', authenticate, requireOwner, async (req, res) => {
-  try {
-    const result = await deleteItem(req.params.id)
-    res.json(result)
-  } catch (error) {
-    res.status(404).json({ error: error.message })
-  }
-})
-
-// PATCH /items/:id/hide — owner only
-router.patch('/items/:id/hide', authenticate, requireOwner, async (req, res) => {
-  try {
-    const result = await hideItem(req.params.id)
-    res.json(result)
-  } catch (error) {
-    res.status(404).json({ error: error.message })
-  }
-})
-
-// PATCH /items/:id/unhide — owner only
-router.patch('/items/:id/unhide', authenticate, requireOwner, async (req, res) => {
-  try {
-    const result = await unhideItem(req.params.id)
-    res.json(result)
-  } catch (error) {
-    res.status(404).json({ error: error.message })
-  }
-})
-
-export default router
+export default router;
 ```
 
 - In `server.js`, mount the items routes:
 
 ```javascript
 // server.js (add these lines)
-import itemRoutes from './routes/items.js'
+import itemRoutes from "./routes/items.js";
 
-app.use(itemRoutes)
+app.use(itemRoutes);
 ```
 
-**Key Concepts:**
-- All routes use `authenticate` middleware to verify token
-- `requireOwner` middleware checks if user role is 'owner' for write operations
-- Viewers can only GET (read)
-- Owners can do everything
-- Use correct HTTP status codes:
-  - `200` — GET/PUT/PATCH/DELETE success
-  - `201` — POST success (resource created)
-  - `400` — Bad request (validation error)
-  - `401` — Missing/invalid token
-  - `403` — Valid token but insufficient permissions
-  - `404` — Item not found
-  - `500` — Server error
+- Each controller (`getAllItems`, `getItemById`, `addItem`, etc.) receives `(req, res)` and:
+  - Extracts data from `req.body`, `req.query`, `req.params`
+  - Calls store functions (`loadItems`, `saveItems`)
+  - **Sends the HTTP response** using `res.status(code).json(data)`
+  - **Catches all errors** from store layer and sends appropriate status codes (never throws)
+
+```javascript
+// Example: getAllItems controller
+export async function getAllItems(req, res) {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
+    const result = await loadItems(limit, offset);
+    res.status(200).json(result); // controller sends response
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve items" });
+  }
+}
+```
+
+**Separation of Concerns:**
+
+- **Routes** (`routes/items.js`): Traffic cop — URL + method → controller. No logic, no try/catch blocks.
+- **Controllers** (`controllers/itemsController.js`): Decision makers — receive req/res, validate, operate, send responses.
+- **Middleware** (`authenticate`, `requireOwner`): Security gates — `authenticate` sends 401, `requireOwner` sends 403, that's it.
+- **Store** (`data/store.js`): I/O layer — read/write files, throw errors for controllers to catch.
+
+**Status codes by responsibility:**
+
+- `200, 201, 400, 404, 500` — Controllers
+- `401` — `authenticate` middleware only
+- `403` — `requireOwner` middleware only
 
 **Testing with Postman:**
+
 1. `POST /token` with `{"role":"owner"}` → copy token
 2. Click "Authorization" → select "Bearer Token" → paste token
 3. `GET /items` → should return paginated items
@@ -356,11 +320,13 @@ app.use(itemRoutes)
 ---
 
 ### Stage B5 — Swagger Documentation
+
 **Branch:** `stage/b5-swagger`
 
 Add interactive API documentation at `/api-docs`.
 
 **Tasks:**
+
 - Set up `swagger.js` with `swagger-jsdoc` config (openapi 3.0, title, version)
 - Mount `swagger-ui-express` in `server.js` at `/api-docs`
 - Add JSDoc `@swagger` comments to every route in `routes/auth.js` and `routes/items.js`:
@@ -374,11 +340,13 @@ Add interactive API documentation at `/api-docs`.
 ---
 
 ### Stage B6 — Docker
+
 **Branch:** `stage/b6-docker`
 
 Containerize the backend so it runs anywhere.
 
 **Tasks:**
+
 - Write `Dockerfile`:
   ```dockerfile
   FROM node:20-alpine
@@ -408,18 +376,21 @@ Containerize the backend so it runs anywhere.
 ---
 
 ### Stage B7 — CORS & Lab 6 Connection
+
 **Branch:** `stage/b7-integration`
 
 Allow the React frontend to call the backend, then wire up Lab 6 to use the API.
 
 **Tasks (backend):**
+
 - Add CORS in `server.js`:
   ```js
-  app.use(cors({ origin: 'http://localhost:5173' })) // dev
+  app.use(cors({ origin: "http://localhost:5173" })); // dev
   ```
 - Test that a fetch from the React app doesn't get blocked
 
 **Tasks (Lab 6 frontend — new branch in `tum-web-lab6`):**
+
 - Create `src/services/api.js` — fetch wrapper with Authorization header for all operations
 - Create `src/services/tokenService.js` — handles storing and retrieving the JWT token:
   - Store token in `localStorage` (key: `pit-token`) or `sessionStorage` for the session
@@ -443,11 +414,13 @@ Allow the React frontend to call the backend, then wire up Lab 6 to use the API.
 ---
 
 ### Stage B7.5 — Basic Testing (Optional)
+
 **Branch:** `stage/b7.5-tests`
 
 Add simple test coverage for the API to catch regressions.
 
 **Tasks:**
+
 - Install testing framework:
   ```bash
   npm install --save-dev jest supertest
@@ -473,14 +446,14 @@ Add simple test coverage for the API to catch regressions.
 
 ## Summary
 
-| Stage | Repo | Branch | Key Feature |
-|-------|------|--------|-------------|
-| 8 | lab6 | `stage/8-roles` | RoleContext, owner/viewer UI |
-| B1 | lab7 | `stage/b1-setup` | Express server running |
-| B2 | lab7 | `stage/b2-store` | In-memory store + controller functions |
-| B3 | lab7 | `stage/b3-auth` | JWT `/token` endpoint + auth middleware |
-| B4 | lab7 | `stage/b4-routes` | Full CRUD routes with role protection |
-| B5 | lab7 | `stage/b5-swagger` | Swagger UI at `/api-docs` |
-| B6 | lab7 | `stage/b6-docker` | Docker + docker-compose |
-| B7 | lab7+lab6 | `stage/b7-integration` | CORS + frontend connected to backend |
-| B7.5 | lab7 | `stage/b7.5-tests` | Basic Jest + supertest coverage (optional) |
+| Stage | Repo      | Branch                 | Key Feature                                |
+| ----- | --------- | ---------------------- | ------------------------------------------ |
+| 8     | lab6      | `stage/8-roles`        | RoleContext, owner/viewer UI               |
+| B1    | lab7      | `stage/b1-setup`       | Express server running                     |
+| B2    | lab7      | `stage/b2-store`       | In-memory store + controller functions     |
+| B3    | lab7      | `stage/b3-auth`        | JWT `/token` endpoint + auth middleware    |
+| B4    | lab7      | `stage/b4-routes`      | Full CRUD routes with role protection      |
+| B5    | lab7      | `stage/b5-swagger`     | Swagger UI at `/api-docs`                  |
+| B6    | lab7      | `stage/b6-docker`      | Docker + docker-compose                    |
+| B7    | lab7+lab6 | `stage/b7-integration` | CORS + frontend connected to backend       |
+| B7.5  | lab7      | `stage/b7.5-tests`     | Basic Jest + supertest coverage (optional) |
