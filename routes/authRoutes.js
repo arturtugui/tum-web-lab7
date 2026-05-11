@@ -3,7 +3,8 @@ import { generateToken } from '../controllers/authController.js'
 
 const router = express.Router()
 
-//
+// these paths are realtive to /auth
+// so they will be for example /auth/token
 router.post('/token', getToken)
 
 // ignore the code below
