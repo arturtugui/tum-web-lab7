@@ -5,7 +5,7 @@ const router = express.Router()
 
 // these paths are realtive to /auth
 // so they will be for example /auth/token
-router.post('/token', getToken)
+router.post('/token', generateToken)
 
 // ignore the code below
 router.post('/token', (req, res) => {
