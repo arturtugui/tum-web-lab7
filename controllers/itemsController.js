@@ -50,7 +50,7 @@ export async function addItem(req, res) {
     items.push(item)
     await saveItems(items)
 
-    res.status(201).json({ success: true, item })
+    res.status(201).json({ item })
   } catch (error) {
     res.status(500).json({ error: 'Failed to add item' })
   }
@@ -75,7 +75,7 @@ export async function updateItem(req, res) {
     items[index] = updatedItem
     await saveItems(items)
 
-    res.status(200).json({ success: true, item: updatedItem })
+    res.status(200).json({ item: updatedItem })
   } catch (error) {
     res.status(500).json({ error: 'Failed to update item' })
   }
@@ -94,7 +94,7 @@ export async function deleteItem(req, res) {
     items.splice(index, 1)
     await saveItems(items)
 
-    res.status(200).json({ success: true, message: 'Item deleted' })
+    res.status(204).send() // 204 No Content — resource deleted, nothing to return
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete item' })
   }
@@ -113,7 +113,7 @@ export async function hideItem(req, res) {
     items[index].isHidden = true
     await saveItems(items)
 
-    res.status(200).json({ success: true, message: 'Item hidden' })
+    res.status(200).json({ item: items[index] })
   } catch (error) {
     res.status(500).json({ error: 'Failed to hide item' })
   }
@@ -132,46 +132,8 @@ export async function unhideItem(req, res) {
     items[index].isHidden = false
     await saveItems(items)
 
-    res.status(200).json({ success: true, message: 'Item unhidden' })
+    res.status(200).json({ item: items[index] })
   } catch (error) {
     res.status(500).json({ error: 'Failed to unhide item' })
-  }
-}
-
-export async function hideItem(id) {
-  try {
-    const items = await loadItems()
-    const index = items.findIndex(item => item.id === id)
-
-    if (index === -1) {
-      throw new Error(`Item with id ${id} not found`)
-    }
-
-    items[index].isHidden = true
-    await saveItems(items)
-
-    return { success: true, message: 'Item hidden' }
-  } 
-  catch (error) {
-    throw new Error(`Failed to hide item: ${error.message}`)
-  }
-}
-
-export async function unhideItem(id) {
-  try {
-    const items = await loadItems()
-    const index = items.findIndex(item => item.id === id)
-
-    if (index === -1) {
-      throw new Error(`Item with id ${id} not found`)
-    }
-
-    items[index].isHidden = false
-    await saveItems(items)
-
-    return { success: true, message: 'Item unhidden' }
-  } 
-  catch (error) {
-    throw new Error(`Failed to unhide item: ${error.message}`)
   }
 }
