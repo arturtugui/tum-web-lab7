@@ -40,7 +40,8 @@
     "title": "Tokyo Ghoul",
     "category": "manga",
     "status": "completed",
-    "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqf9NgrDpoUTRfA2vfs10ic6T5tJOxoojSptkdHHpxF2aoBaoIxtQYJCwOS1kGkanCa68vOxMmUYrCxryQdgrbz7Vu4R7Z_a6xMbOGPQ39vg&s=10"
+    "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqf9NgrDpoUTRfA2vfs10ic6T5tJOxoojSptkdHHpxF2aoBaoIxtQYJCwOS1kGkanCa68vOxMmUYrCxryQdgrbz7Vu4R7Z_a6xMbOGPQ39vg&s=10",
+    "isHidden": false
   },
   {
     "id": 7,
