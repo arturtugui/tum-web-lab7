@@ -5,7 +5,7 @@ import { loadItems, saveItems } from '../data/store.js'
 
 export async function getAllItems(req, res) {
   try {
-    const limit = parseInt(req.query.limit) || 20
+    const limit = parseInt(req.query.limit) || 10
     const offset = parseInt(req.query.offset) || 0
     const items = await loadItems()
     const total = items.length
