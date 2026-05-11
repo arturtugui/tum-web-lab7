@@ -6,6 +6,7 @@ import {
   getItemById,
   addItem,
   updateItem,
+  partialUpdateItem,
   deleteItem,
   hideItem,
   unhideItem,
@@ -26,8 +27,8 @@ router.post('/', authenticate, requireOwner, addItem)
 // PUT /items/:id — owner only (full replacement)
 router.put('/:id', authenticate, requireOwner, updateItem)
 
-// PATCH /items/:id — owner only (partial update)
-router.patch('/:id', authenticate, requireOwner, updateItem)
+// PATCH /items/:id — owner only (partial update, merges with existing fields)
+router.patch('/:id', authenticate, requireOwner, partialUpdateItem)
 
 // DELETE /items/:id — owner only
 router.delete('/:id', authenticate, requireOwner, deleteItem)
