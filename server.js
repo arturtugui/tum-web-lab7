@@ -1,5 +1,7 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './swagger.js'
 import authRoutes from './routes/authRoutes.js'
 import itemRoutes from './routes/itemRoutes.js'
 import { authenticate } from './middleware/authMiddleware.js'
@@ -12,6 +14,8 @@ const PORT = process.env.PORT || 3000
 //middleware, that allows us to parse JSON request bodies
 app.use(express.json())
 
+// swagger documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 // routes
 app.use('/auth', authRoutes)
