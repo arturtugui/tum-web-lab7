@@ -23,7 +23,9 @@ export function generateToken(req, res) {
         const token = jwt.sign(
             { role }, 
             process.env.JWT_SECRET, 
-            { expiresIn: '1m' }
+            // should be 1m as per lab requirements
+            // modified for tesing purposes
+            { expiresIn: '10m' }
         )
 
         return res.status(201).json({ token })

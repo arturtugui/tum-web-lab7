@@ -38,6 +38,7 @@ export async function getItemById(req, res) {
   }
 }
 
+// both PUT and PATCH use this controller
 export async function addItem(req, res) {
   try {
     const item = req.body
