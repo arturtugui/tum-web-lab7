@@ -22,7 +22,7 @@ app.use((err, req, res, next) => {
 })
 
 //****
-//this code does not follow the architecture yet
+//this code does not follow the architecture yet, i will change it later
 app.get('/', (req, res) => {
   res.json({ message: 'PIT API Server running' })
 })
