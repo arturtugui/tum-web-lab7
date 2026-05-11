@@ -14,6 +14,12 @@ export function generateToken(req, res) {
             return res.status(400).json({ error: `Invalid role: ${role}` })
         }
 
+        if (!process.env.JWT_SECRET) {
+            // error throw for debugging, remove in production
+            console.error('ERROR: JWT_SECRET is not defined in .env')
+            return res.status(500).json({ error: 'Server configuration error: JWT_SECRET missing' })
+        }
+
         const token = jwt.sign(
             { role }, 
             process.env.JWT_SECRET, 
@@ -22,6 +28,8 @@ export function generateToken(req, res) {
 
         return res.status(201).json({ token })
     } catch (error) {
-        res.status(500).json({ error: 'Failed to generate token' })
+        // error throw for debugging, remove in production
+        console.error('Token generation error:', error.message)
+        res.status(500).json({ error: `Failed to generate token: ${error.message}` })
     }
 }
