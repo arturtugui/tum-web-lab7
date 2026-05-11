@@ -38,7 +38,7 @@ export async function getItemById(req, res) {
   }
 }
 
-// both PUT and PATCH use this controller
+// POST /items — create new item
 export async function addItem(req, res) {
   try {
     const item = req.body
@@ -48,6 +48,13 @@ export async function addItem(req, res) {
     }
 
     const items = await loadItems()
+    
+    // Check for duplicate ID
+    const existingItem = items.find(i => i.id == item.id)
+    if (existingItem) {
+      return res.status(400).json({ error: `Item with id ${item.id} already exists` })
+    }
+
     items.push(item)
     await saveItems(items)
 
@@ -57,6 +64,7 @@ export async function addItem(req, res) {
   }
 }
 
+// PUT /items/:id — full replacement
 export async function updateItem(req, res) {
   try {
     const { id } = req.params
@@ -77,6 +85,32 @@ export async function updateItem(req, res) {
     await saveItems(items)
 
     res.status(200).json({ item: updatedItem })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update item' })
+  }
+}
+
+// PATCH /items/:id — partial update (merge with existing fields)
+export async function partialUpdateItem(req, res) {
+  try {
+    const { id } = req.params
+
+    if (!id) {
+      return res.status(400).json({ error: 'Item id is required' })
+    }
+
+    const items = await loadItems()
+    const index = items.findIndex(item => item.id == id)
+
+    if (index === -1) {
+      return res.status(404).json({ error: `Item with id ${id} not found` })
+    }
+
+    // Merge new fields with existing item (preserves old fields)
+    items[index] = { ...items[index], ...req.body, id }
+    await saveItems(items)
+
+    res.status(200).json({ item: items[index] })
   } catch (error) {
     res.status(500).json({ error: 'Failed to update item' })
   }

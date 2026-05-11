@@ -7,10 +7,10 @@
     "coverUrl": "https://image.tmdb.org/t/p/original/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg"
   },
   {
-    "id": 2,
-    "title": "Apex Legends",
+    "id": "2",
+    "title": "Updated Title",
     "category": "game",
-    "status": "in_progress",
+    "status": "completed",
     "rating": 9,
     "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/header.jpg"
   },
