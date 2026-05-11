@@ -17,13 +17,10 @@ export function authenticate(req, res, next) {
     }
 
     try {
-        console.log('Verifying token...') // DEBUG
         const decoded = jwt.verify(token, process.env.JWT_SECRET) // check if token is valid and not expired
-        console.log('Token valid. Role:', decoded.role) // DEBUG
         req.user = decoded // attach user info to request object (as another field)
         next() // pass control to the next middleware or route handler
     } catch (error) {
-        console.error('Token verification failed:', error.message) // DEBUG
         return res.status(401).json({ error: 'Invalid token' })
     }
 }
