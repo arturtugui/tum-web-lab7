@@ -24,7 +24,7 @@ export function generateToken(req, res) {
             { role }, 
             process.env.JWT_SECRET, 
             // 1m expiry as per lab requirements
-            { expiresIn: '1m' }
+            { expiresIn: '10s' }
         )
 
         return res.status(201).json({ token })
