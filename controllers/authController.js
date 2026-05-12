@@ -25,7 +25,7 @@ export function generateToken(req, res) {
             process.env.JWT_SECRET, 
             // should be 1m as per lab requirements
             // modified for tesing purposes
-            { expiresIn: '10m' } // will automatically be converted to nr.
+            { expiresIn: '1m' } // will automatically be converted to nr.
         )
 
         return res.status(201).json({ token })
