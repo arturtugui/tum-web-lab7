@@ -7,12 +7,12 @@
     "coverUrl": "https://image.tmdb.org/t/p/original/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg"
   },
   {
-    "id": "2",
-    "title": "Updated Title",
+    "title": "Apex Legends",
     "category": "game",
-    "status": "completed",
+    "status": "in_progress",
     "rating": 9,
-    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/header.jpg"
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/header.jpg",
+    "id": "2"
   },
   {
     "id": 3,
@@ -64,6 +64,24 @@
     "status": "completed",
     "rating": null,
     "coverUrl": "https://blog.hospitalmedicine.org/wp-content/uploads/2012/05/house-md.jpg",
+    "isHidden": false
+  },
+  {
+    "title": "1",
+    "category": "movie",
+    "status": "planned",
+    "rating": null,
+    "coverUrl": "https://loremflickr.com/250/350/movie",
+    "id": 1778616315807.0002,
+    "isHidden": false
+  },
+  {
+    "title": "21",
+    "category": "movie",
+    "status": "planned",
+    "rating": null,
+    "coverUrl": "https://loremflickr.com/250/350/movie",
+    "id": "1778616320294.5999",
     "isHidden": false
   }
 ]
