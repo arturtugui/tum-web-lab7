@@ -65,5 +65,14 @@
     "rating": null,
     "coverUrl": "https://blog.hospitalmedicine.org/wp-content/uploads/2012/05/house-md.jpg",
     "isHidden": false
+  },
+  {
+    "title": "lals",
+    "category": "movie",
+    "status": "planned",
+    "rating": null,
+    "coverUrl": "https://loremflickr.com/250/350/movie",
+    "id": 1778613521465.7764,
+    "isHidden": false
   }
 ]
