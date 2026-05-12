@@ -2,3 +2,4 @@ node_modules
 .env
 .git
 .gitignore
+tum-web-lab7.code-workspace
