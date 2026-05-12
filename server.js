@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000
 app.use(express.json())
 
 // CORS - Allow requests from React frontend
-app.use(cors({ origin: 'http://localhost:5173' }))
+app.use(cors({ origin: process.env.CORS_ORIGIN }))
 
 // swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
