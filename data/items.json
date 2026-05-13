@@ -67,20 +67,20 @@
     "isHidden": false
   },
   {
-    "title": "13",
-    "category": "movie",
-    "status": "planned",
+    "title": "Metal Gear Rising: Revengeance",
+    "category": "game",
+    "status": "completed",
     "rating": null,
-    "coverUrl": "https://loremflickr.com/250/350/movie",
+    "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTt7YkMbcuOAzwPvsuF-LF6udDf0Mp6zfsX-Q&s",
     "id": "1778616315807.0002",
     "isHidden": false
   },
   {
-    "title": "21",
-    "category": "movie",
-    "status": "planned",
+    "title": "Invincible",
+    "category": "series",
+    "status": "completed",
     "rating": null,
-    "coverUrl": "https://loremflickr.com/250/350/movie",
+    "coverUrl": "https://m.media-amazon.com/images/M/MV5BZGM5MmM2ZDAtMzBjNS00NjMxLWE4ZTMtNzFjMWMxYzU2ZThjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
     "id": "1778616320294.5999",
     "isHidden": false
   }
